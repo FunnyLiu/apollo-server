@@ -120,7 +120,7 @@ type Mutable<T> = { -readonly [P in keyof T]: T[P] };
  */
 const symbolExtensionDeprecationDone =
   Symbol("apolloServerExtensionDeprecationDone");
-
+// 以context来请求结果并返回
 export async function processGraphQLRequest<TContext>(
   config: GraphQLRequestPipelineConfig<TContext>,
   requestContext: Mutable<GraphQLRequestContext<TContext>>,
@@ -139,6 +139,7 @@ export async function processGraphQLRequest<TContext>(
   (requestContext.context as any)._extensionStack = extensionStack;
 
   const dispatcher = initializeRequestListenerDispatcher();
+  // 初始化数据源
   await initializeDataSources();
 
   const request = requestContext.request;
@@ -443,6 +444,7 @@ export async function processGraphQLRequest<TContext>(
       enablePluginsForSchemaResolvers(config.schema);
 
       try {
+        // 通过graphql-js的execute来完成真正的查询，从而拿到返回值。
         const result = await execute(
           requestContext as GraphQLRequestContextExecutionDidStart<TContext>,
         );
@@ -505,7 +507,7 @@ export async function processGraphQLRequest<TContext>(
     }
 
     const validationDidEnd = extensionStack.validationDidStart();
-
+    // 进入graphql校验
     try {
       return graphqlValidate(config.schema, document, rules);
     } finally {
@@ -705,7 +707,7 @@ export async function processGraphQLRequest<TContext>(
 
     return new GraphQLExtensionStack(extensions);
   }
-
+  // 初始化dataSources 
   async function initializeDataSources() {
     if (config.dataSources) {
       const context = requestContext.context;
@@ -731,7 +733,7 @@ export async function processGraphQLRequest<TContext>(
           'Please use the dataSources config option instead of putting dataSources on the context yourself.',
         );
       }
-
+      //将传入的dataSources挂载到context上
       (context as any).dataSources = dataSources;
     }
   }

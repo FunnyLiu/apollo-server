@@ -89,7 +89,7 @@ export class ApolloServer extends ApolloServerBase {
       'To use Apollo Server with an existing express application, please use apollo-server-express',
     );
   }
-
+  // 启动服务
   // Listen takes the same arguments as http.Server.listen.
   public async listen(...opts: Array<any>): Promise<ServerInfo> {
     // This class is the easy mode for people who don't create their own express

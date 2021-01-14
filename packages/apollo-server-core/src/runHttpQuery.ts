@@ -110,7 +110,7 @@ export function throwHttpGraphQLError<E extends Error>(
     headers,
   );
 }
-
+//解析3
 export async function runHttpQuery(
   handlerArguments: Array<any>,
   request: HttpQueryRequest,
@@ -157,7 +157,7 @@ export async function runHttpQuery(
       }
     }
   }
-
+  // 解析5，继续走流程
   const config = {
     schema: options.schema,
     schemaHash: options.schemaHash,
@@ -303,8 +303,9 @@ export async function processHTTPRequest<TContext>(
       const request = parseGraphQLRequest(httpRequest.request, requestPayload);
 
       try {
+        //构建带context.schema的请求上下文
         const requestContext = buildRequestContext(request);
-
+        //这里就拿到了返回值了
         const response = await processGraphQLRequest(options, requestContext);
 
         // This code is run on parse/validation errors and any other error that

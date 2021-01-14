@@ -326,7 +326,7 @@ export class ApolloServerBase {
 
     // TODO: This is a bit nasty because the subscription server needs this.schema synchronously, for reasons of backwards compatibility.
     const _schema = this.initSchema();
-
+    // 初始化了schema
     if (isSchema(_schema)) {
       const derivedData = this.generateSchemaDerivedData(_schema);
       this.schema = derivedData.schema;
@@ -486,7 +486,7 @@ export class ApolloServerBase {
           `,
         );
       }
-
+      //基于graphql-tools来完成对typedefs、resolvers的封装
       constructedSchema = makeExecutableSchema({
         typeDefs: augmentedTypeDefs,
         schemaDirectives,
@@ -531,9 +531,10 @@ export class ApolloServerBase {
       documentStore,
     };
   }
-
+  //开始流程
   protected async willStart() {
     try {
+      //拿到schema
       var { schema, schemaHash } = await this.schemaDerivedData;
     } catch (err) {
       // The `schemaDerivedData` can throw if the Promise it points to does not
@@ -575,6 +576,7 @@ export class ApolloServerBase {
 
     const serverListeners = (
       await Promise.all(
+        // 调用每个插件的serverWillStart方法
         this.plugins.map(
           (plugin) => plugin.serverWillStart && plugin.serverWillStart(service),
         ),

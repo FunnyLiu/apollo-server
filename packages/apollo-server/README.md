@@ -1,3 +1,84 @@
+# 源码分析
+
+## 知识点
+
+### DataSources的使用和解析
+
+一般的使用是通过：
+
+``` js
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  // 将dataSources挂载到context上下文
+  dataSources: () => ({
+    launchAPI: new LaunchAPI(),
+    userAPI: new UserAPI({ store }),
+  }),
+});
+```
+
+apollo-server-core会初始化时将传入的dataSources挂载到context.dataSources上，具体见[此处](https://github.com/FunnyLiu/apollo-server/blob/readsource/packages/apollo-server-core/src/requestPipeline.ts#L734)。
+
+从而提供给resolvers消费，比如下面的dataSources参数。
+
+``` js
+module.exports = {
+  Query: {
+    //   分页
+    launches: async (_, { pageSize = 20, after }, { dataSources }) => {
+      const allLaunches = await dataSources.launchAPI.getAllLaunches();
+      // we want these in reverse chronological order
+      allLaunches.reverse();
+      const launches = paginateResults({
+        after,
+        pageSize,
+        results: allLaunches,
+      });
+      return {
+        launches,
+        cursor: launches.length ? launches[launches.length - 1].cursor : null,
+        // if the cursor at the end of the paginated results is the same as the
+        // last item in _all_ results, then there are no more results after this
+        hasMore: launches.length
+          ? launches[launches.length - 1].cursor !==
+            allLaunches[allLaunches.length - 1].cursor
+          : false,
+      };
+    },
+    launch: (_, { id }, { dataSources }) =>
+      dataSources.launchAPI.getLaunchById({ launchId: id }),
+    me: (_, __, { dataSources }) => dataSources.userAPI.findOrCreateUser(),
+  }
+};
+
+```
+
+### resolvers和typeDefs等参数的解析
+
+这些实际上是基于graphql-tools这个包来完成的。包源码在[此处](https://github.com/FunnyLiu/graphql-tools/tree/readsource)。
+
+解析的地方在[此处](https://github.com/FunnyLiu/apollo-server/blob/readsource/packages/apollo-server-core/src/ApolloServer.ts#L489)，从而挂载到context上。
+
+
+
+
+### listen
+
+实现参考[此处](https://github.com/FunnyLiu/apollo-server/blob/readsource/packages/apollo-server/src/index.ts#L92)
+
+
+
+### 请求查询的流程
+
+首先在入口也就是[此处](https://github.com/FunnyLiu/apollo-server/blob/readsource/packages/apollo-server-express/src/ApolloServer.ts#L194)，增加一个/graphql的接口路由。
+
+经过一系列处理。
+
+最后通过graphql-js的execute方法来完成真正的操作，参考：[此处](https://github.com/FunnyLiu/apollo-server/blob/readsource/packages/apollo-server-core/src/requestPipeline.ts#L447)
+
+
+
 # <a href='https://www.apollographql.com/'><img src='https://user-images.githubusercontent.com/841294/53402609-b97a2180-39ba-11e9-8100-812bab86357c.png' height='100' alt='Apollo Server'></a>
 ## GraphQL Server for Express, Koa, Hapi, Lambda, and more.
 

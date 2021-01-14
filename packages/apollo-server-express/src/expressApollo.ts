@@ -30,6 +30,7 @@ export function graphqlExpress(
   }
 
   return (req, res, next): void => {
+    //解析2
     runHttpQuery([req, res], {
       method: req.method,
       options: options,

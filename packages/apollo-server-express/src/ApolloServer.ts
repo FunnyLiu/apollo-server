@@ -137,8 +137,8 @@ export class ApolloServer extends ApolloServerBase {
     // request comes in, but we won't call `next` on this middleware until it
     // does. (And we'll take care to surface any errors via the `.catch`-able.)
     const promiseWillStart = this.willStart();
-
     router.use(path, (_req, _res, next) => {
+      // express中间件执行一个promise
       promiseWillStart.then(() => next()).catch(next);
     });
 
@@ -191,6 +191,7 @@ export class ApolloServer extends ApolloServerBase {
     // schema, you'll need to manually specify `introspection: true` in the
     // ApolloServer constructor; by default, the introspection query is only
     // enabled in dev.
+    //新增/graphql接口
     router.use(path, (req, res, next) => {
       if (this.playgroundOptions && req.method === 'GET') {
         // perform more expensive content-type check only if necessary
@@ -216,7 +217,9 @@ export class ApolloServer extends ApolloServerBase {
           return;
         }
       }
-
+      //graphql接口的解析流程
+      //解析1
+      //函数createGraphQLServerOptions
       return graphqlExpress(() => this.createGraphQLServerOptions(req, res))(
         req,
         res,

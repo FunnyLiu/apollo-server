@@ -85,6 +85,7 @@ export interface PersistedQueryOptions {
 export default GraphQLServerOptions;
 
 export async function resolveGraphqlOptions(
+  //解析4，执行options函数，函数[定义在createGraphQLServerOptions](https://github.com/FunnyLiu/apollo-server/blob/readsource/packages/apollo-server-express/src/ApolloServer.ts#L222)
   options:
     | GraphQLServerOptions
     | ((...args: Array<any>) => ValueOrPromise<GraphQLServerOptions>),
